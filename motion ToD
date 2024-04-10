@@ -21,17 +21,17 @@ blueprint:
       name: Morning Start Time
       description: Time when morning starts
       selector:
-        time:
+        time: {}
     evening_start_time:
       name: Evening Start Time
       description: Time when evening starts
       selector:
-        time:
+        time: {}
     night_start_time:
       name: Night Start Time
       description: Time when night starts
       selector:
-        time:
+        time: {}
     morning_color_temp:
       name: Morning Color Temperature
       description: Color temperature for morning
@@ -109,38 +109,36 @@ max_exceeded: silent
 
 trigger:
   platform: state
-  entity_id: !input motion_entity
+  entity_id: "{{ input.motion_entity }}"
   to: "on"
 
 condition:
   condition: template
   value_template: >
     {% set current_hour = now().hour %}
-    {% if current_hour >= states('input_datetime.morning_start_time') | int %}
-      {% set current_time = 'morning' %}
-    {% elif current_hour >= states('input_datetime.evening_start_time') | int %}
-      {% set current_time = 'evening' %}
-    {% else %}
-      {% set current_time = 'night' %}
-    {% endif %}
-    {{ current_time in ['morning', 'evening', 'night'] }}
+    {% set morning_start = states('input_datetime.morning_start_time') | int %}
+    {% set evening_start = states('input_datetime.evening_start_time') | int %}
+    {% set night_start = states('input_datetime.night_start_time') | int %}
+    {{ (morning_start <= current_hour < evening_start) or
+       (evening_start <= current_hour < night_start) or
+       (night_start <= current_hour <= 23) }}
 
 action:
   - service: light.turn_on
     target: !input light_entity
     data:
       brightness: >
-        {% if current_time == 'morning' %}
+        {% if morning_start <= current_hour < evening_start %}
           {{ states('input_number.morning_brightness') | int }}
-        {% elif current_time == 'evening' %}
+        {% elif evening_start <= current_hour < night_start %}
           {{ states('input_number.evening_brightness') | int }}
         {% else %}
           {{ states('input_number.night_brightness') | int }}
         {% endif %}
       color_temp: >
-        {% if current_time == 'morning' %}
+        {% if morning_start <= current_hour < evening_start %}
           {{ states('input_number.morning_color_temp') | int }}
-        {% elif current_time == 'evening' %}
+        {% elif evening_start <= current_hour < night_start %}
           {{ states('input_number.evening_color_temp') | int }}
         {% else %}
           {{ states('input_number.night_color_temp') | int }}
