@@ -169,63 +169,63 @@ action:
                 entity_id: time
                 after: !input time_of_day_variations[0]
                 before: !input time_of_day_variations[1]
-          sequence:
-            - repeat:
-                sequence:
-                  - service: light.turn_on
-                    data:
-                      brightness_step_pct: !input step
-                      transition: '{{ speed / 1000 }}'
-                    target:
+            sequence:
+              - repeat:
+                  sequence:
+                    - service: light.turn_on
+                      data:
+                        brightness_step_pct: !input step
+                        transition: '{{ speed / 1000 }}'
+                      target:
+                        entity_id: !input entity
+                    - delay:
+                        milliseconds: !input speed
+                  until:
+                    - condition: numeric_state
                       entity_id: !input entity
-                  - delay:
-                      milliseconds: !input speed
-                until:
-                  - condition: numeric_state
-                    entity_id: !input entity
-                    attribute: brightness
-                    state: '100'
+                      attribute: brightness
+                      state: '100'
           - conditions:
               - condition: numeric_state
                 entity_id: time
                 after: !input time_of_day_variations[1]
                 before: !input time_of_day_variations[2]
-          sequence:
-            - repeat:
-                sequence:
-                  - service: light.turn_on
-                    data:
-                      brightness_step_pct: !input step
-                      transition: '{{ speed / 2000 }}'
-                    target:
+            sequence:
+              - repeat:
+                  sequence:
+                    - service: light.turn_on
+                      data:
+                        brightness_step_pct: !input step
+                        transition: '{{ speed / 2000 }}'
+                      target:
+                        entity_id: !input entity
+                    - delay:
+                        milliseconds: !input speed
+                  until:
+                    - condition: numeric_state
                       entity_id: !input entity
-                  - delay:
-                      milliseconds: !input speed
-                until:
-                  - condition: numeric_state
-                    entity_id: !input entity
-                    attribute: brightness
-                    state: '100'
+                      attribute: brightness
+                      state: '100'
           - conditions:
               - condition: numeric_state
                 entity_id: time
                 after: !input time_of_day_variations[2]
-          sequence:
-            - repeat:
-                sequence:
-                  - service: light.turn_on
-                    data:
-                      brightness_step_pct: !input step
-                      transition: '{{ speed / 4000 }}'
-                    target:
+            sequence:
+              - repeat:
+                  sequence:
+                    - service: light.turn_on
+                      data:
+                        brightness_step_pct: !input step
+                        transition: '{{ speed / 4000 }}'
+                      target:
+                        entity_id: !input entity
+                    - delay:
+                        milliseconds: !input speed
+                  until:
+                    - condition: numeric_state
                       entity_id: !input entity
-                  - delay:
-                      milliseconds: !input speed
-                until:
-                  - condition: numeric_state
-                    entity_id: !input entity
-                    attribute: brightness
-                    state: '100'
+                      attribute: brightness
+                      state: '100'
   - conditions:
       - condition: trigger
         id: up_released
