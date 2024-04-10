@@ -22,6 +22,11 @@ blueprint:
       description: Time when morning starts
       selector:
         time: {}
+    afternoon_start_time:
+      name: Afternoon Start Time
+      description: Time when afternoon starts
+      selector:
+        time: {}
     evening_start_time:
       name: Evening Start Time
       description: Time when evening starts
@@ -35,6 +40,16 @@ blueprint:
     morning_color_temp:
       name: Morning Color Temperature
       description: Color temperature for morning
+      selector:
+        number:
+          min: 150
+          max: 500
+          unit_of_measurement: "mired"
+          mode: slider
+          step: 10
+    afternoon_color_temp:
+      name: Afternoon Color Temperature
+      description: Color temperature for afternoon
       selector:
         number:
           min: 150
@@ -72,6 +87,16 @@ blueprint:
           unit_of_measurement: "%"
           mode: slider
           step: 5
+    afternoon_brightness:
+      name: Afternoon Brightness
+      description: Brightness level for afternoon
+      selector:
+        number:
+          min: 0
+          max: 100
+          unit_of_measurement: "%"
+          mode: slider
+          step: 5
     evening_brightness:
       name: Evening Brightness
       description: Brightness level for evening
@@ -90,57 +115,4 @@ blueprint:
           min: 0
           max: 100
           unit_of_measurement: "%"
-          mode: slider
-          step: 5
-    fade_duration:
-      name: Fade Duration
-      description: Duration for fade in/out effects (in seconds)
-      default: 5
-      selector:
-        number:
-          min: 1
-          max: 60
-          unit_of_measurement: "seconds"
-          mode: slider
-          step: 1
-
-mode: restart
-max_exceeded: silent
-
-trigger:
-  platform: state
-  entity_id: "{{ input.motion_entity }}"
-  to: "on"
-
-condition:
-  condition: template
-  value_template: >
-    {% set current_hour = now().hour %}
-    {% set morning_start = states('input_datetime.morning_start_time') | int %}
-    {% set evening_start = states('input_datetime.evening_start_time') | int %}
-    {% set night_start = states('input_datetime.night_start_time') | int %}
-    {{ (morning_start <= current_hour < evening_start) or
-       (evening_start <= current_hour < night_start) or
-       (night_start <= current_hour <= 23) }}
-
-action:
-  - service: light.turn_on
-    target: !input light_entity
-    data:
-      brightness: >
-        {% if morning_start <= current_hour < evening_start %}
-          {{ states('input_number.morning_brightness') | int }}
-        {% elif evening_start <= current_hour < night_start %}
-          {{ states('input_number.evening_brightness') | int }}
-        {% else %}
-          {{ states('input_number.night_brightness') | int }}
-        {% endif %}
-      color_temp: >
-        {% if morning_start <= current_hour < evening_start %}
-          {{ states('input_number.morning_color_temp') | int }}
-        {% elif evening_start <= current_hour < night_start %}
-          {{ states('input_number.evening_color_temp') | int }}
-        {% else %}
-          {{ states('input_number.night_color_temp') | int }}
-        {% endif %}
-      transition: "{{ states('input_number.fade_duration') }}"
+ 
